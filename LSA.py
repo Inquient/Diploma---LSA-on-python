@@ -26,7 +26,7 @@ freq = args.freq
 # if str(source.find('.txt')) == -1:
 if source[-3:len(source)] != 'txt':
     for k in range(1, 7):
-        f = open(source +'\T' + str(k) + '.txt')
+        f = open(source +'/Doc' + str(k) + '.txt')
         # f = open('mydoc\\T'+str(i)+'.txt')
         words.append(f.read())
 else:
@@ -73,22 +73,22 @@ new_a = numpy.dot(terms, numpy.dot(numpy.diag(s), docs))    # Двумерное
 print(new_a)
 
 # Построение графика
-matplotlib.rc('font', family='Arial', size='16')
+matplotlib.rc('font', family='Arial', size='8')
 fig = plt.figure()
 axes = Axes3D(fig)
 
 
 for k in range(len(freqMatrix[0])):
-    shift = random.uniform(-0.2, 0.3)
+    # shift = random.uniform(-0.2, 0.3)
     axes.scatter(docs[0][k], docs[1][k], docs[2][k], color='b')   # scatter - метод для нанесения маркера в точке
     axes.plot([docs[0][k], docs[0][k]], [docs[1][k], docs[1][k]], zs=[docs[2][k], 0], color='k', dashes=[8, 4, 2, 4, 2, 4])
-    axes.text(docs[0][k], docs[1][k], docs[2][k] + shift, str(k + 1))
+    axes.text(docs[0][k], docs[1][k], docs[2][k], str(k + 1))
 
 for j in range(len(freqMatrix)):
-    shift = random.uniform(-0.2, 0.3)
+    # shift = random.uniform(-0.2, 0.3)
     axes.scatter(terms[j][0], terms[j][1], terms[j][2], color='r')
     axes.plot([terms[j][0], terms[j][0]], [terms[j][1], terms[j][1]], zs=[terms[j][2], 0], color='k', dashes=[8, 4, 2, 4, 2, 4])
-    axes.text(terms[j][0], terms[j][1], terms[j][2] + shift, str(keys[j]))
+    axes.text(terms[j][0], terms[j][1], terms[j][2], str(keys[j]))
 
 if dest is not None:
     print(dest)
@@ -126,8 +126,14 @@ for doc in docCords:
     statistics[index+1] = distDictionary
     index += 1
 
-l = lambda x: x[1]
-print(sorted(statistics[1].items(), key=l, reverse=True))
+# print(statistics)
+
+l = lambda x: -x[1]
+index = 1
+while index <= statistics.__len__():
+    end = sorted(statistics[index].items(), key=l, reverse=True)
+    print(index, end[:5])
+    index += 1
 
 # print(statistics)
 plt.show()
