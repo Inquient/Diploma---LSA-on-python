@@ -132,7 +132,7 @@ www = []
 while index <= statistics.__len__():
     end = sorted(statistics[index].items(), key=l, reverse=True)
     print(index, end[:5])      # Из всех значений термов для каждого документа оставим 5 наиболее длизких по расстоянию
-    end_word_list = dict(end[:5])   # И выведем их
+    end_word_list = dict(end[:3])   # И выведем их
     www.append(list(end_word_list.keys()))
     index += 1
 
