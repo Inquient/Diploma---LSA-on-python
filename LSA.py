@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy
-import random
 from textProcessor import textProcessor
 from Stemmer import Stemmer
 import matplotlib
@@ -90,10 +89,11 @@ for j in range(len(freqMatrix)):
     axes.plot([terms[j][0], terms[j][0]], [terms[j][1], terms[j][1]], zs=[terms[j][2], 0], color='k', dashes=[8, 4, 2, 4, 2, 4])
     axes.text(terms[j][0], terms[j][1], terms[j][2], str(keys[j]))
 
+#Выводим информацию о б анализе в файл
 if dest is not None:
     print(dest)
-    plt.savefig(dest+'\graphic', fmt='svg')
-    with open(dest+r'\results.txt', 'w+') as f:
+    plt.savefig(dest+'/graphic', fmt='png')
+    with open(dest+r'/results.txt', 'w+') as f:
         k = 0
         j = 0
         f.write('Матрица термы-на-документы\n')
@@ -113,9 +113,9 @@ if dest is not None:
 
 termCords = [line[:3] for line in terms]
 docCords = [line[:3] for line in docs.transpose()]
-
-statistics = {}
-index = 0
+                # Результаты расчётов поместим в словарь словарей statistics
+statistics = {} # В нём по номеру документа хранятся словари из пар- (терм: расстояние от терма до данного документа)
+index = 0       # Получим наглядный словарь по расстояниям от каждого терма до каждого документа
 for doc in docCords:
     k = 0
     distDictionary = {}
@@ -125,15 +125,22 @@ for doc in docCords:
         k += 1
     statistics[index+1] = distDictionary
     index += 1
-
-# print(statistics)
-
-l = lambda x: -x[1]
-index = 1
+                    # Теперь отсортируем каждый словарь из statistics по возрастанию расстояния от документа до терма
+l = lambda x: -x[1] # Таким образом получим упорядоченные списки, где первые термы больше всего соответсвуют
+index = 1           # данному документу.
+www = []
 while index <= statistics.__len__():
     end = sorted(statistics[index].items(), key=l, reverse=True)
-    print(index, end[:5])
+    print(index, end[:5])      # Из всех значений термов для каждого документа оставим 5 наиболее длизких по расстоянию
+    end_word_list = dict(end[:5])   # И выведем их
+    www.append(list(end_word_list.keys()))
     index += 1
 
-# print(statistics)
+
+sss = set()             # Теперь составим множество всех термов, которые находятся по отношению к своим документам в
+for list in www:        # пятёрке наиболее близких и выведем их
+    for item in list:
+        sss.add(item)
+print(sss)              # Это и будут термы, наиболее точно передающие тему и смысл всего набора документов, т.е. текста
+
 plt.show()
