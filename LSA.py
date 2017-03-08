@@ -7,6 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import argparse
+from sklearn.decomposition import PCA
 
 parser = argparse.ArgumentParser(description='File path parser')
 parser.add_argument('--source', '-s', type=str, required=True, help='Path to the file or folder with files')
@@ -69,10 +70,15 @@ print(docs)
 print('          ')
 s[2:] = 0
 new_a = numpy.dot(terms, numpy.dot(numpy.diag(s), docs))    # Двумерное сингулярное разложение
-print(new_a)
+# print(new_a)
+
+#Анализ главных компонент
+pca = PCA(n_components=3)
+fit = pca.fit_transform(terms)
+print(fit)
 
 # Построение графика
-matplotlib.rc('font', family='Arial', size='8')
+# matplotlib.rc('font', family='Arial', size='8')
 fig = plt.figure()
 axes = Axes3D(fig)
 
