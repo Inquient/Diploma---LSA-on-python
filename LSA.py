@@ -15,6 +15,43 @@ parser.add_argument('--dest', '-d', type=str, help='Path to the results saving f
 parser.add_argument('--freq', '-f', default=1, type=int, help='Если слово встречактся в документе больше раз, чем'
                                                               ' задано здесь, то оно подлежит удалению')
 
+
+def plotGraphic(freqMatrix, docs, terms, keys):
+    fig = plt.figure()
+    axes = Axes3D(fig)
+
+    for k in range(len(freqMatrix[0])):
+        # shift = random.uniform(-0.2, 0.3)
+        axes.scatter(docs[0][k], docs[1][k], docs[2][k], color='b')  # scatter - метод для нанесения маркера в точке
+        axes.plot([docs[0][k], docs[0][k]], [docs[1][k], docs[1][k]], zs=[docs[2][k], 0], color='k',
+                  dashes=[8, 4, 2, 4, 2, 4])
+        axes.text(docs[0][k], docs[1][k], docs[2][k], str(k + 1))
+
+    for j in range(len(freqMatrix)):
+        # shift = random.uniform(-0.2, 0.3)
+        axes.scatter(terms[j][0], terms[j][1], terms[j][2], color='r')
+        axes.plot([terms[j][0], terms[j][0]], [terms[j][1], terms[j][1]], zs=[terms[j][2], 0], color='k',
+                  dashes=[8, 4, 2, 4, 2, 4])
+        axes.text(terms[j][0], terms[j][1], terms[j][2], str(keys[j]))
+
+
+def plotAsPCA(fit_docs, fit_terms, keys):
+    fig = plt.figure()
+    axes = Axes3D(fig)
+
+    i = 0
+    for doc in fit_docs:
+        i += 1
+        axes.scatter(doc[0],doc[1],doc[2], color='b')
+        axes.text(doc[0],doc[1],doc[2], str(i))
+
+    j = 0
+    for term in fit_terms:
+        axes.scatter(term[0],term[1],term[2], color='r')
+        axes.text(term[0],term[1],term[2], str(keys[j]))
+        j += 1
+
+
 args = parser.parse_args()
 
 words = []
@@ -74,26 +111,14 @@ new_a = numpy.dot(terms, numpy.dot(numpy.diag(s), docs))    # Двумерное
 
 #Анализ главных компонент
 pca = PCA(n_components=3)
-fit = pca.fit_transform(terms)
-print(fit)
+fit_docs = pca.fit_transform(docs)
+print(fit_docs)
+fit_terms = pca.fit_transform(terms)
+print(fit_terms)
 
 # Построение графика
-# matplotlib.rc('font', family='Arial', size='8')
-fig = plt.figure()
-axes = Axes3D(fig)
-
-
-for k in range(len(freqMatrix[0])):
-    # shift = random.uniform(-0.2, 0.3)
-    axes.scatter(docs[0][k], docs[1][k], docs[2][k], color='b')   # scatter - метод для нанесения маркера в точке
-    axes.plot([docs[0][k], docs[0][k]], [docs[1][k], docs[1][k]], zs=[docs[2][k], 0], color='k', dashes=[8, 4, 2, 4, 2, 4])
-    axes.text(docs[0][k], docs[1][k], docs[2][k], str(k + 1))
-
-for j in range(len(freqMatrix)):
-    # shift = random.uniform(-0.2, 0.3)
-    axes.scatter(terms[j][0], terms[j][1], terms[j][2], color='r')
-    axes.plot([terms[j][0], terms[j][0]], [terms[j][1], terms[j][1]], zs=[terms[j][2], 0], color='k', dashes=[8, 4, 2, 4, 2, 4])
-    axes.text(terms[j][0], terms[j][1], terms[j][2], str(keys[j]))
+plotAsPCA(fit_docs, fit_terms, keys)
+# plotGraphic(freqMatrix, docs, terms, keys)
 
 #Выводим информацию о б анализе в файл
 if dest is not None:
@@ -119,6 +144,10 @@ if dest is not None:
 
 termCords = [line[:3] for line in terms]
 docCords = [line[:3] for line in docs.transpose()]
+# termCords = fit_terms
+# docCords = fit_docs
+
+
                 # Результаты расчётов поместим в словарь словарей statistics
 statistics = {} # В нём по номеру документа хранятся словари из пар- (терм: расстояние от терма до данного документа)
 index = 0       # Получим наглядный словарь по расстояниям от каждого терма до каждого документа
