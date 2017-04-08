@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import numpy
+import argparse
 from textProcessor import textProcessor
 from Stemmer import Stemmer
-import matplotlib
+from FileCryptor import FileCryptor
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import argparse
 from sklearn.decomposition import PCA
 
 parser = argparse.ArgumentParser(description='File path parser')
