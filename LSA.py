@@ -14,6 +14,8 @@ parser.add_argument('--source', '-s', type=str, required=True, help='Path to the
 parser.add_argument('--dest', '-d', type=str, help='Path to the results saving folder')
 parser.add_argument('--freq', '-f', default=1, type=int, help='Если слово встречактся в документе больше раз, чем'
                                                               ' задано здесь, то оно подлежит удалению')
+parser.add_argument('--pca', action='store_true', help='Если активировать этот ключ, то будет срабатывать'
+                                                            'анализ главных компонент перед отбором признаков')
 
 
 def plotGraphic(freqMatrix, docs, terms, keys):
@@ -59,6 +61,7 @@ words = []
 source = args.source
 dest = args.dest
 freq = args.freq
+pca = args.pca
 
 # if str(source.find('.txt')) == -1:
 if source[-3:len(source)] != 'txt':
@@ -75,23 +78,23 @@ else:
 TP = textProcessor()
 ST = Stemmer()
 
-words = [w.lower() for w in words]
-words = TP.remove_symbols(words)
-words = TP.remove_stopwords(words)
+words = [w.lower() for w in words]      # Переводим все строки в нижний регистр
+words = TP.remove_symbols(words)        # Удаляем стоп-символы
+words = TP.remove_stopwords(words)      # Удаляем стоп-слова
 print(words)
 
 stemmed = []
 for sentence in words:
-    s = [ST.stem(i) for i in sentence]                # производится стемминг
+    s = [ST.stem(i) for i in sentence]                # Производится стемминг
     stemmed.append(s)
 print(stemmed)
 
-keys = TP.remove_unique(stemmed, freq)                # удаление слов, встречающихся во всех документах более freq раз
-print(keys)
-print(len(keys))
+keys = TP.remove_unique(stemmed, freq)                # Удаление слов, встречающихся во всех документах более freq раз
+print(keys)                                           # По умолчанию частота freq=1 равна еденице
+print(len(keys))                                      # Получаем массив ключевых слов - термов
 
-table, disp_table = TP.table_generator(keys, stemmed)
-print(disp_table)
+table, disp_table = TP.table_generator(keys, stemmed)       # Формируем частотную матрицу - table
+print(disp_table)                                           # И таблицу частоты  встречаемости - disp_table
 
 # Сингулярное разложение
 LA = numpy.linalg
@@ -109,18 +112,19 @@ s[2:] = 0
 new_a = numpy.dot(terms, numpy.dot(numpy.diag(s), docs))    # Двумерное сингулярное разложение
 # print(new_a)
 
-#Анализ главных компонент
-pca = PCA(n_components=3)
-fit_docs = pca.fit_transform(docs)
-print(fit_docs)
-fit_terms = pca.fit_transform(terms)
-print(fit_terms)
+# Вывод графика и Анализ главных компонент, если требуется
+if(pca):
+    pca = PCA(n_components=3)
+    fit_docs = pca.fit_transform(docs)
+    print(fit_docs)
+    fit_terms = pca.fit_transform(terms)
+    print(fit_terms)
+    plotAsPCA(fit_docs, fit_terms, keys)
+else:
+    plotGraphic(freqMatrix, docs, terms, keys)
 
-# Построение графика
-plotAsPCA(fit_docs, fit_terms, keys)
-# plotGraphic(freqMatrix, docs, terms, keys)
 
-#Выводим информацию о б анализе в файл
+# Выводим информацию об анализе в файл
 if dest is not None:
     print(dest)
     plt.savefig(dest+'/graphic', fmt='png')
@@ -142,10 +146,14 @@ if dest is not None:
 
 # Расчитаем расстояния до всех термов от каждого документа
 
-termCords = [line[:3] for line in terms]
-docCords = [line[:3] for line in docs.transpose()]
-# termCords = fit_terms
-# docCords = fit_docs
+if(pca):
+    termCords = fit_terms                                 # Для разложения с анализом главных компонент
+    docCords = fit_docs
+else:
+    termCords = [line[:3] for line in terms]                # Для обычного разложения
+    docCords = [line[:3] for line in docs.transpose()]
+
+
 
 
                 # Результаты расчётов поместим в словарь словарей statistics
@@ -160,6 +168,8 @@ for doc in docCords:
         k += 1
     statistics[index+1] = distDictionary
     index += 1
+
+
                     # Теперь отсортируем каждый словарь из statistics по возрастанию расстояния от документа до терма
 l = lambda x: -x[1] # Таким образом получим упорядоченные списки, где первые термы больше всего соответсвуют
 index = 1           # данному документу.
