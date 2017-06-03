@@ -18,45 +18,74 @@ parser.add_argument('--pca', action='store_true', help='Если активир�
                                                             'анализ главных компонент перед отбором признаков')
 
 
-def plotGraphic(freqMatrix, docs, terms, keys):
+# def plotGraphic(freqMatrix, docs, terms, keys):
+#     fig = plt.figure()
+#     axes = Axes3D(fig)
+#
+#     for k in range(len(freqMatrix[0])):
+#         # shift = random.uniform(-0.2, 0.3)
+#         axes.scatter(docs[0][k], docs[1][k], docs[2][k], color='b')
+#         axes.plot([docs[0][k], docs[0][k]], [docs[1][k], docs[1][k]], zs=[docs[2][k], 0], color='k',
+#                   dashes=[8, 4, 2, 4, 2, 4])
+#         axes.text(docs[0][k], docs[1][k], docs[2][k], str(k + 1))
+#
+#     for j in range(len(freqMatrix)):
+#         # shift = random.uniform(-0.2, 0.3)
+#         axes.scatter(terms[j][0], terms[j][1], terms[j][2], color='r')
+#         axes.plot([terms[j][0], terms[j][0]], [terms[j][1], terms[j][1]], zs=[terms[j][2], 0], color='k',
+#                   dashes=[8, 4, 2, 4, 2, 4])
+#         axes.text(terms[j][0], terms[j][1], terms[j][2], str(keys[j]))
+#
+#
+# def plotAsPCA(fit_docs, fit_terms, keys):
+#     fig = plt.figure()
+#     axes = Axes3D(fig)
+#
+#     x = numpy.arange(-1, 1, 0.1)
+#     y = numpy.arange(-1, 1, 0.1)
+#
+#     xgrid, ygrid = numpy.meshgrid(x, y)
+#
+#     axes.plot_surface(xgrid, ygrid, 0, color='b', alpha='0.33')
+#
+#     i = 0
+#     for doc in fit_docs:
+#         i += 1
+#         axes.scatter(doc[0],doc[1],doc[2], color='b', edgecolor='k')
+#         axes.plot([doc[0], doc[0]], [doc[1], doc[1]], zs=[doc[2], 0], color='k',
+#                   dashes=[8, 4, 2, 4, 2, 4])
+#         axes.text(doc[0],doc[1],doc[2], str(i))
+#
+#     j = 0
+#     for term in fit_terms:
+#         axes.scatter(term[0],term[1],term[2], color='r', edgecolor='k')
+#         axes.plot([term[0], term[0]], [term[1], term[1]], zs=[term[2], 0], color='k',
+#                   dashes=[8, 4, 2, 4, 2, 4])
+#         axes.text(term[0],term[1],term[2], str(keys[j]))
+#         j += 1
+
+def plotGraphic(docs, terms, keys, pca=False):
     fig = plt.figure()
     axes = Axes3D(fig)
 
-    for k in range(len(freqMatrix[0])):
-        # shift = random.uniform(-0.2, 0.3)
-        axes.scatter(docs[0][k], docs[1][k], docs[2][k], color='b')
-        axes.plot([docs[0][k], docs[0][k]], [docs[1][k], docs[1][k]], zs=[docs[2][k], 0], color='k',
-                  dashes=[8, 4, 2, 4, 2, 4])
-        axes.text(docs[0][k], docs[1][k], docs[2][k], str(k + 1))
+    if(pca == False):
+        docs = docs.transpose()
 
-    for j in range(len(freqMatrix)):
-        # shift = random.uniform(-0.2, 0.3)
-        axes.scatter(terms[j][0], terms[j][1], terms[j][2], color='r')
-        axes.plot([terms[j][0], terms[j][0]], [terms[j][1], terms[j][1]], zs=[terms[j][2], 0], color='k',
-                  dashes=[8, 4, 2, 4, 2, 4])
-        axes.text(terms[j][0], terms[j][1], terms[j][2], str(keys[j]))
-
-
-def plotAsPCA(fit_docs, fit_terms, keys):
-    fig = plt.figure()
-    axes = Axes3D(fig)
-
-    i = 0
-    for doc in fit_docs:
-        i += 1
-        axes.scatter(doc[0],doc[1],doc[2], color='b')
+    i = 1
+    for doc in docs:
+        axes.scatter(doc[0], doc[1], doc[2], color='b', edgecolor='k')
         axes.plot([doc[0], doc[0]], [doc[1], doc[1]], zs=[doc[2], 0], color='k',
                   dashes=[8, 4, 2, 4, 2, 4])
-        axes.text(doc[0],doc[1],doc[2], str(i))
+        axes.text(doc[0], doc[1], doc[2], str(i))
+        i += 1
 
     j = 0
-    for term in fit_terms:
-        axes.scatter(term[0],term[1],term[2], color='r')
+    for term in terms:
+        axes.scatter(term[0], term[1], term[2], color='r', edgecolor='k')
         axes.plot([term[0], term[0]], [term[1], term[1]], zs=[term[2], 0], color='k',
                   dashes=[8, 4, 2, 4, 2, 4])
-        axes.text(term[0],term[1],term[2], str(keys[j]))
+        axes.text(term[0], term[1], term[2], str(keys[j]))
         j += 1
-
 
 
 args = parser.parse_args()
@@ -107,9 +136,8 @@ freqMatrix = numpy.array(table)
 # print(freqMatrix)
 terms, s, docs = LA.svd(freqMatrix, full_matrices=False)
 assert numpy.allclose(freqMatrix, numpy.dot(terms, numpy.dot(numpy.diag(s), docs)))
-s[2:] = 0
-new_a = numpy.dot(terms, numpy.dot(numpy.diag(s), docs))    # Двумерное сингулярное разложение
-# print(new_a)
+# s[2:] = 0
+new_a = numpy.dot(terms, numpy.dot(numpy.diag(s), docs))
 
 # Вывод графика и Анализ главных компонент, если требуется
 if(pca):
@@ -120,7 +148,7 @@ if(pca):
     print('          ')
     print(fit_docs)
     print('          ')
-    plotAsPCA(fit_docs, fit_terms, keys)
+    plotGraphic(fit_docs, fit_terms, keys, pca=True)
 else:
     print(terms)
     print('          ')
@@ -128,9 +156,8 @@ else:
     print('          ')
     print(docs)
     print('          ')
-    plotGraphic(freqMatrix, docs, terms, keys)
+    plotGraphic(docs, terms, keys)
 
-# Расчитаем расстояния до всех термов от каждого документа
 
 if(pca):
     termCords = fit_terms                                 # Для разложения с анализом главных компонент
@@ -140,8 +167,7 @@ else:
     docCords = [line[:3] for line in docs.transpose()]
 
 
-
-
+# Расчитаем расстояния до всех термов от каждого документа
                 # Результаты расчётов поместим в словарь словарей statistics
 statistics = {} # В нём по номеру документа хранятся словари из пар- (терм: расстояние от терма до данного документа)
 index = 0       # Получим наглядный словарь по расстояниям от каждого терма до каждого документа
