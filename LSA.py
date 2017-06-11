@@ -4,6 +4,7 @@ import numpy
 import argparse
 from textProcessor import textProcessor
 from Stemmer import Stemmer
+import random
 from FileCryptor import FileCryptor
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -18,58 +19,16 @@ parser.add_argument('--pca', action='store_true', help='Если активир�
                                                             'анализ главных компонент перед отбором признаков')
 
 
-# def plotGraphic(freqMatrix, docs, terms, keys):
-#     fig = plt.figure()
-#     axes = Axes3D(fig)
-#
-#     for k in range(len(freqMatrix[0])):
-#         # shift = random.uniform(-0.2, 0.3)
-#         axes.scatter(docs[0][k], docs[1][k], docs[2][k], color='b')
-#         axes.plot([docs[0][k], docs[0][k]], [docs[1][k], docs[1][k]], zs=[docs[2][k], 0], color='k',
-#                   dashes=[8, 4, 2, 4, 2, 4])
-#         axes.text(docs[0][k], docs[1][k], docs[2][k], str(k + 1))
-#
-#     for j in range(len(freqMatrix)):
-#         # shift = random.uniform(-0.2, 0.3)
-#         axes.scatter(terms[j][0], terms[j][1], terms[j][2], color='r')
-#         axes.plot([terms[j][0], terms[j][0]], [terms[j][1], terms[j][1]], zs=[terms[j][2], 0], color='k',
-#                   dashes=[8, 4, 2, 4, 2, 4])
-#         axes.text(terms[j][0], terms[j][1], terms[j][2], str(keys[j]))
-#
-#
-# def plotAsPCA(fit_docs, fit_terms, keys):
-#     fig = plt.figure()
-#     axes = Axes3D(fig)
-#
-#     x = numpy.arange(-1, 1, 0.1)
-#     y = numpy.arange(-1, 1, 0.1)
-#
-#     xgrid, ygrid = numpy.meshgrid(x, y)
-#
-#     axes.plot_surface(xgrid, ygrid, 0, color='b', alpha='0.33')
-#
-#     i = 0
-#     for doc in fit_docs:
-#         i += 1
-#         axes.scatter(doc[0],doc[1],doc[2], color='b', edgecolor='k')
-#         axes.plot([doc[0], doc[0]], [doc[1], doc[1]], zs=[doc[2], 0], color='k',
-#                   dashes=[8, 4, 2, 4, 2, 4])
-#         axes.text(doc[0],doc[1],doc[2], str(i))
-#
-#     j = 0
-#     for term in fit_terms:
-#         axes.scatter(term[0],term[1],term[2], color='r', edgecolor='k')
-#         axes.plot([term[0], term[0]], [term[1], term[1]], zs=[term[2], 0], color='k',
-#                   dashes=[8, 4, 2, 4, 2, 4])
-#         axes.text(term[0],term[1],term[2], str(keys[j]))
-#         j += 1
-
 def plotGraphic(docs, terms, keys, pca=False):
     fig = plt.figure()
     axes = Axes3D(fig)
 
     if(pca == False):
         docs = docs.transpose()
+        # x = numpy.arange(-1, 1, 0.1)
+        # y = numpy.arange(-1, 1, 0.1)
+        # xgrid, ygrid = numpy.meshgrid(x, y)
+        # axes.plot_surface(xgrid, ygrid, 0, color='b', alpha='0.33')
 
     i = 1
     for doc in docs:
@@ -84,7 +43,8 @@ def plotGraphic(docs, terms, keys, pca=False):
         axes.scatter(term[0], term[1], term[2], color='r', edgecolor='k')
         axes.plot([term[0], term[0]], [term[1], term[1]], zs=[term[2], 0], color='k',
                   dashes=[8, 4, 2, 4, 2, 4])
-        axes.text(term[0], term[1], term[2], str(keys[j]))
+        shift = random.uniform(0.05, 0.1)
+        axes.text(term[0], term[1], term[2]+shift, str(keys[j]))
         j += 1
 
 
@@ -99,12 +59,12 @@ pca = args.pca
 
 # if str(source.find('.txt')) == -1:
 if source[-3:len(source)] != 'txt':
-    for k in range(1, 7):
-        f = open(source +'/Doc' + str(k) + '.txt', encoding='utf-8')
+    for k in range(1, 8):
+        f = open(source +'/Doc' + str(k) + '.txt',encoding='utf-8')
         # f = open('mydoc\\T'+str(i)+'.txt')
         words.append(f.read())
 else:
-    f = open(source, encoding='utf-8')
+    f = open(source,encoding='utf-8')
     # f = open('text2.txt')
     for line in f.readlines():
         words.append(line.strip())
